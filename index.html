@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ISTQB Quiz" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <title>ISTQB Quiz</title>
+  <link rel="stylesheet" href="style.css?v=8" />
+</head>
+<body>
+
+<!-- ==================== SCREEN 1: HOME ==================== -->
+<div id="screen-home" class="screen active">
+
+  <div class="hero">
+    <div class="hero-icon">🎯</div>
+    <h1>ISTQB Quiz</h1>
+    <p>240 câu hỏi luyện thi chứng chỉ</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat">
+      <span id="total-answered">0</span><label>Đã làm</label>
+    </div>
+    <div class="stat">
+      <span id="best-score">0%</span><label>Điểm cao nhất</label>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-switcher">
+    <button class="tab-btn active" onclick="switchTab(this, 'random')">🔀 Ngẫu nhiên</button>
+    <button class="tab-btn" onclick="switchTab(this, 'exam')">📋 Theo đề</button>
+    <button class="tab-btn" onclick="switchTab(this, 'review')">🔁 Ôn tập sai</button>
+  </div>
+
+  <!-- TAB RANDOM -->
+  <div id="tab-random" class="tab-content active">
+    <p class="tab-desc">Chọn số câu hỏi ngẫu nhiên để luyện tập</p>
+    <div class="options-grid">
+      <button class="btn-option" onclick="startQuiz('random',10)">
+        <span class="opt-num">10</span><span class="opt-label">câu</span>
+      </button>
+      <button class="btn-option" onclick="startQuiz('random',20)">
+        <span class="opt-num">20</span><span class="opt-label">câu</span>
+      </button>
+      <button class="btn-option" onclick="startQuiz('random',40)">
+        <span class="opt-num">40</span><span class="opt-label">câu</span>
+      </button>
+      <button class="btn-option featured" onclick="startQuiz('random',questions.length)">
+        <span class="opt-num">240</span><span class="opt-label">Toàn bộ</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- TAB EXAM -->
+  <div id="tab-exam" class="tab-content">
+    <p class="tab-desc">Mỗi đề 10 câu theo thứ tự</p>
+    <div class="exam-grid" id="exam-grid"></div>
+  </div>
+
+  <!-- TAB REVIEW -->
+  <div id="tab-review" class="tab-content">
+    <p class="tab-desc">Ôn tập các câu bạn trả lời sai</p>
+    <div id="review-container" style="text-align:center; margin-top: 20px;">
+      <button class="btn-option featured" onclick="startReview()">
+        <span class="opt-num">Ôn lại</span><span class="opt-label">Câu sai</span>
+      </button>
+      <div style="margin-top:12px;">
+        <button class="btn-secondary" onclick="clearWrongQuestions()">🗑 Xóa danh sách</button>
+      </div>
+      <p id="review-count" style="margin-top:12px; font-size:13px; color:#94A3B8;">
+        Bạn chưa có câu nào trong danh sách ôn tập
+      </p>
+    </div>
+  </div>
+
+</div><!-- end screen-home -->
+
+
+<!-- ==================== SCREEN 2: QUIZ ==================== -->
+<div id="screen-quiz" class="screen">
+
+  <div class="quiz-header">
+    <button class="btn-back" onclick="goHome()">← Thoát</button>
+    <div class="progress-info"><span id="q-current">1</span>/<span id="q-total">10</span></div>
+    <div class="score-live">✅ <span id="score-live">0</span></div>
+  </div>
+
+  <!-- Mode & Lang -->
+  <div class="quiz-meta" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+    <div id="quiz-mode-label" style="font-size:12px;color:#94A3B8;"></div>
+    <button class="btn-lang" id="btn-lang" onclick="toggleLang()">🇻🇳 Tiếng Việt</button>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+
+  <div class="question-card">
+    <div class="q-number" id="q-number">Câu 1</div>
+    <div class="q-text" id="q-text">Đang tải...</div>
+  </div>
+
+  <div class="options-list" id="options-list"></div>
+
+  <div class="explanation-box" id="explanation-box" style="display:none;">
+    <div class="exp-icon" id="exp-icon"></div>
+    <div class="exp-text" id="exp-text"></div>
+    <button class="btn-next" onclick="nextQuestion()">Câu tiếp theo →</button>
+  </div>
+
+</div><!-- end screen-quiz -->
+
+
+<!-- ==================== SCREEN 3: RESULT ==================== -->
+<div id="screen-result" class="screen">
+  <div class="result-container">
+    <div id="result-mode" style="font-size:14px;color:#94A3B8;"></div>
+    <div class="result-emoji" id="result-emoji" style="font-size:70px;">🎉</div>
+    <h2>Kết Quả</h2>
+    <div class="result-score" id="result-score">0%</div>
+    <div class="result-detail" id="result-detail">0/0 câu đúng</div>
+    <div class="result-message" id="result-message"></div>
+    <div class="result-actions">
+      <button class="btn-primary" onclick="retryQuiz()">🔄 Làm lại</button>
+      <button class="btn-secondary" onclick="goHome()">🏠 Trang chủ</button>
+    </div>
+  </div>
+</div>
+
+<script src="questions.js?v=8"></script>
+<script src="app.js?v=8"></script>
+</body>
+</html>
